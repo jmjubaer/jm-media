@@ -21,7 +21,9 @@ const Navbar = () => {
                         <li><NavLink className={({ isActive }) => isActive ? "text-blue-e" : "" } to="/applied">Applied Jobs</NavLink></li>
                         <li><NavLink className={({ isActive }) => isActive ? "text-blue-e" : "" } to="/blogs">Blog</NavLink></li>
                     </ul>
-                    <button className='btn-primary mt-10 lg:mt-0'>Star Applying</button>
+                    <Link to={"/login"}>                    
+                        <button className='btn bg-[#014A97] text-white mt-10 lg:mt-0'>Login</button>
+                    </Link>
                 </div>
                 <button onClick={() => setOpen(!open)} className='block lg:hidden'>{open ? <FaTimes/> : <FaBars/>}</button>
             </nav>
