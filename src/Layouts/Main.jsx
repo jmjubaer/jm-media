@@ -3,9 +3,9 @@ import Navbar from "../SheredPages/Navbar";
 
 const Main = () => {
     return (
-        <div className="">
+        <div className="bg-[#edf1f4] overflow-hidden">
             <Navbar></Navbar>
-            <div className="jm_container min-h-screen">
+            <div className="jm_container min-h-[calc(100vh-50px)] ">
                 <Outlet></Outlet>
             </div>
         </div>

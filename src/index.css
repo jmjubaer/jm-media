@@ -8,9 +8,6 @@
     max-width: 96%;
     margin: auto;
 }
-body{
-    background: #ddd;
-}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

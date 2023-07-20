@@ -1,10 +1,12 @@
+import Login from "../Login/Login/Login";
 import Post from "./Post";
 
 const Home = () => {
     return (
-        <>
-            <Post></Post>
-        </>
+        <div className="content_container">
+            {/* <Post></Post> */}
+            <Login></Login>
+        </div>
     );
 };
 
