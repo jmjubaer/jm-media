@@ -1,15 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../SocialLogin";
-import { useContext } from "react";
-import { AuthContext } from "../../../Providers/AuthProvider";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import { updateProfile } from "firebase/auth";
+import UseAuthContext from "../../../Hooks/UseAuthContext";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 const SignUp = () => {
-    const { register, handleSubmit,reset } = useForm();
-    const { createUser } = useContext(AuthContext);
+    const { register, handleSubmit, reset } = useForm();
+    const [show,setShow] = useState(true);
+    const [cShow,setcShow] = useState(true);
+    const { createUser } = UseAuthContext();
     const hostingUrl = `https://api.imgbb.com/1/upload?key=${
         import.meta.env.VITE_IMAGE_KEY
     }`;
@@ -26,34 +29,32 @@ const SignUp = () => {
                 .then((res) => res.json())
                 .then((imgRes) => {
                     if (imgRes.success) {
-                        console.log(imgRes?.data?.display_url);
-                        createUser(data?.email,data?.pass)
-                        .then(result => {
-                            const user = result.user;
-                            if(user){
-                                updateProfile(user,{
-                                    displayName: fullName,
-                                    photoURL: imgRes?.data?.display_url
-                                })
-                                .then(() =>{
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Sign UP success',
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                      })
-                                      reset()
-                                      navigate('/')
-                                })  
-                            }
-                        })
-                        .catch(err => {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: `${err.message}`
-                              })
-                        })
+                        createUser(data?.email, data?.pass)
+                            .then((result) => {
+                                const user = result.user;
+                                if (user) {
+                                    updateProfile(user, {
+                                        displayName: fullName,
+                                        photoURL: imgRes?.data?.display_url,
+                                    }).then(() => {
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: "Sign UP success",
+                                            showConfirmButton: false,
+                                            timer: 1500,
+                                        });
+                                        reset();
+                                        navigate("/");
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: `${err.message}`,
+                                });
+                            });
                     }
                 });
         } else {
@@ -121,31 +122,43 @@ const SignUp = () => {
                     />
                 </div>
                 <div className="grid grid-cols-2 gap-5 mt-8">
-                    <div className="w-full flex flex-col">
+                    <div className="w-full flex flex-col relative">
                         <label className="text-xl mb-4" htmlFor="pass">
                             Password:
                         </label>
                         <input
                             required
                             placeholder="First Name ...... "
-                            type="password"
+                            type={show ? "password" : "text"}
                             {...register("pass")}
                             id="pass"
                             className="disc_effects p-3 px-5 rounded-xl outline-none"
                         />
+                        <span
+                            onClick={() => setShow(!show)}
+                            className="text-2xl absolute right-5 bottom-3 cursor-pointer"
+                        >
+                            {show ? <FaEye /> : <FaEyeSlash />}
+                        </span>
                     </div>
-                    <div className="w-full flex flex-col">
+                    <div className="w-full flex flex-col relative">
                         <label className="text-xl mb-4" htmlFor="cPass">
                             Confirm Password:
                         </label>
                         <input
                             required
                             placeholder="Last Name ...... "
-                            type="password"
+                            type={cShow ? "password" : "text"}
                             {...register("confirmPass")}
                             id="cPass"
                             className="disc_effects p-3 px-5 rounded-xl outline-none"
                         />
+                        <span
+                            onClick={() => setcShow(!cShow)}
+                            className="text-2xl absolute right-5 bottom-3 cursor-pointer"
+                        >
+                            {cShow ? <FaEye /> : <FaEyeSlash />}
+                        </span>
                     </div>
                 </div>
                 <input
