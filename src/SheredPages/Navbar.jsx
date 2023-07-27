@@ -5,7 +5,7 @@ import { ImExit } from "react-icons/im";
 import { useState } from "react";
 
 const Navbar = () => {
-    const { user,logOut } = UseAuthContext();
+    const { user, logOut } = UseAuthContext();
     const [control, setControl] = useState(false);
     return (
         <div className="bg-white">
@@ -87,7 +87,10 @@ const Navbar = () => {
                                     </Link>
                                 </li>
                                 <li className="mt-4">
-                                    <button onClick={logOut} className="flex gap-4 text-xl font-medium items-center">
+                                    <button
+                                        onClick={logOut}
+                                        className="flex gap-4 text-xl font-medium items-center"
+                                    >
                                         <div className="bg-[#ddd] w-11 h-11 rounded-full flex items-center justify-center ">
                                             <ImExit className="text-2xl" />
                                         </div>
