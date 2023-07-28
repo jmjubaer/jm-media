@@ -1,12 +1,17 @@
+import { useState } from "react";
 import UseAuthContext from "../../Hooks/UseAuthContext";
 import img1 from "./../../assets/IMG_20211202_144319.jpg"
 import { BsThreeDots } from "react-icons/bs";
-import { FaRegComment, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegComment, FaRegHeart } from "react-icons/fa";
 const Post = () => {
     const {user} = UseAuthContext();
+    const [like,setLike] = useState(false);
+    const handleLike = () => {
+        setLike(!like);
+    }
     return (
         <>
-            <div className="bg-white my-4 rounded-lg shadow-xl">
+            <div className="bg-white my-4 rounded-lg shadow-2xl">
                 <div className="flex justify-between items-center p-3">
                     <div className="flex gap-4 items-center">
                         <img className="w-14 h-14 object-cover rounded-full" src={user?.photoURL} alt="" />
@@ -26,8 +31,10 @@ const Post = () => {
                     <img src={img1} className="object-cover h-full w-full" alt="" />
                 </div>
                 <div className="border-x flex justify-around py-3">
-                    <div className="flex items-center gap-3 cursor-pointer">
-                        <FaRegHeart className="text-3xl"/>
+                    <div onClick={handleLike} className="flex items-center gap-3 cursor-pointer">
+                        {
+                            like ?  <FaHeart className="text-3xl text-red-600 like_effect"/> : <FaRegHeart className="text-3xl "/>
+                        }
                         <span className="text-xl font-medium">Love</span>
                     </div>
                     <div className="flex items-center gap-3 cursor-pointer">

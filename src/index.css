@@ -18,3 +18,17 @@
   .imgFilter{
     filter: grayscale(100%);
   }
+  .like_effect{
+    animation: likeAnimation 0.5s linear;
+  }
+  @keyframes likeAnimation{
+    0%{
+      transform: rotate(0deg);
+    }    
+    50%{
+      transform: rotate(0deg) scale(2);
+    }   
+    100%{
+      transform: rotate(0deg) scale(1);
+    }
+  }
