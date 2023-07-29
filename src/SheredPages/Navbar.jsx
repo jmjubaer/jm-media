@@ -34,7 +34,7 @@ const Navbar = () => {
                             }
                             to="/statistics"
                         >
-                            Statistics
+                            Add Post
                         </NavLink>
                     </li>
                     <li>
