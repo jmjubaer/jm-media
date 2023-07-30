@@ -13,9 +13,9 @@ const SignUp = () => {
     const [show,setShow] = useState(true);
     const [cShow,setcShow] = useState(true);
     const { createUser } = UseAuthContext();
-    const hostingUrl = `https://api.imgbb.com/1/upload?key=${
-        import.meta.env.VITE_IMAGE_KEY
-    }`;
+        const hostingUrl = `https://api.imgbb.com/1/upload?key=${
+            import.meta.env.VITE_IMAGE_KEY
+        }`;
     const navigate = useNavigate();
     const handleSingUp = (data) => {
         const fullName = data?.firstName + " " + data?.lastName;
@@ -61,6 +61,22 @@ const SignUp = () => {
             toast("Password does not match");
         }
     };
+    const [img,setimg] = useState({})
+    const imges = (e) => {
+        setimg(e.target.files);
+    }
+    const handlehost = () => {
+        const formData = new FormData();
+        formData.append('image', img[0])
+        fetch(hostingUrl, {
+            method: "POST",
+            body: formData,
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data);
+            })
+    }
     return (
         <div className="bg-white rounded-xl p-5 my-10 disc_effects_up ">
             <form onSubmit={handleSubmit(handleSingUp)} className="">
@@ -167,6 +183,10 @@ const SignUp = () => {
                     className="disc_effects_up btn w-1/2 mt-8 mx-auto block active font-bold"
                 />
             </form>
+            <form action="">
+                <input onChange={imges} type="file" name="" id="" />
+            </form>
+            <button className="btn" onClick={handlehost}>adhk</button>
             <p className="text-xl font-bold mt-5">
                 Already have an account?
                 <Link
