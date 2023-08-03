@@ -1,45 +1,24 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import UseAuthContext from "../../Hooks/UseAuthContext";
 import frame from "./../../assets/photo-frame.png"
 import moment from 'moment';
-import { FaTimesCircle } from "react-icons/fa";
+import { FaTimes, FaTimesCircle } from "react-icons/fa";
+import useaxiosSecure from "../../Hooks/useaxiosSecure";
+import usePost from "../../Hooks/usePost";
+import Swal from "sweetalert2";
 // TODO: Change the alert into sweetAlert
 const AddPost = () => {
     const {user} = UseAuthContext();
+    const [modal,setModal] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
     const [imagesList,setImagesList] = useState([]);
     const [text,setText] = useState("");
+    const fileInputRef = useRef(null);
     const hostingUrl = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_KEY}`;
+    const {axiosSecured} = useaxiosSecure();
+    const {postRefetch} = usePost();
     
-    // const handleHostImage = async(e) => {
-    //     const image = Array.from(e.target.files)
-    //     setImages(image)
-    // }
-    // console.log(images);
-    // useEffect(() => {
-    //     if(images.length > 0) {
-    //         const formData = new FormData();
-    //         // images.forEach((image, index) => {
-    //         //   formData.append(`image_${index}`, image);
-    //         // });
-    //         console.log(images[0]);
-    //         formData.append('image', images[0]);
-    //         console.log(formData);
-    //         fetch(hostingUrl, {
-    //             method: 'POST',
-    //             body: JSON.stringify(formData)
-    //         }).then(res => res.json())
-    //         .then(data => {
-    //             console.log(data);
-    //         })
-    //     }
-    // },[images])
-
-    // imagesList.push(...images,event.target.files[0])
-    // setImages(imagesList)
-    // const imagesList = [];
-
-
+    let imagePreviews = [];
     const handleImageSelect = (event) => {
         if(selectedImages.length >= 4){
             alert('cannot select images more than 4 ');
@@ -51,7 +30,6 @@ const AddPost = () => {
             return
         }
         setImagesList(imageFiles)
-        let imagePreviews = [];
         
         // Read each selected image and create an array of preview URLs
         // TODO: multiple Image preview
@@ -68,46 +46,99 @@ const AddPost = () => {
           }
         }
     };
+
     const postText = (e) => {
         setText(e.target.value);
     }
 
-    console.log(imagesList);
 
     const handleRemoveImage = ( ) => {
         setSelectedImages([])
         setImagesList([])
+        fileInputRef.current.value = '';
     }
-
     const handlePost = () => {
-        const formData = new FormData();
-        // TODO: Multiple image selected 
-        // for (let i = 0; i < imagesList.length; i++) {
-        //     console.log(`ping ,${i}`);
-        //     formData.append(`image ${i}`, imagesList[i])
-        // }
-        formData.append('image', imagesList[0]) 
-        fetch(hostingUrl, {
-            method: "POST",
-            body: formData,
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
+        if(imagesList.length > 0){
+            const formData = new FormData();
+            // TODO: Multiple image selected 
+            // for (let i = 0; i < imagesList.length; i++) {
+            //     console.log(`ping ,${i}`);
+            //     formData.append(`image ${i}`, imagesList[i])
+            // }
+            formData.append('image', imagesList[0]) 
+            fetch(hostingUrl, {
+                method: "POST",
+                body: formData,
             })
-    }
+                .then((res) => res.json())
+                .then((data) => {
+                    if(data.success){
+                        const post = {
+                            image: data?.data?.display_url,
+                            timeStamp: Date(),
+                            profileImage: user?.photoURL,
+                            profileName: user?.displayName,
+                            like: 0,
+                            postText: text
+                        }
+                        axiosSecured.post('/add-post',post)
+                        .then(data => {
+                            if(data?.data?.insertedId){
+                                setModal(false);
+                                postRefetch();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Add post successfully',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                  })
+                            }
+                        })
+                    }
+                })
+        }
+        else{
+            const post = {
+                timeStamp: Date(),
+                profileImage: user?.photoURL,
+                profileName: user?.displayName,
+                like: 0,
+                postText: text
+            }
+            axiosSecured.post('/add-post',post)
+            .then(data => {
+                if(data?.data?.insertedId){
+                    setModal(false);
+                    postRefetch();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Add post successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                      })
+                }
+            })
+        }
+    };
+
     return (
-        <section className="bg-white p-3 my-5 rounded-lg shadow-2xl flex items-center justify-between">
-            <button className="w-[10%]">
-                <img src={user?.photoURL} alt="" className="w-14 h-14 rounded-full object-cover"/>
-            </button>
-            <button className="w-[80%] text-xl font-mono bg-gray-200 py-2 px-5 text-left rounded-3xl">Express your feelings!</button>
-            <button className="w-fit">
-                <img src={frame} alt="" />
-            </button>
+        <section className="bg-white rounded-lg">
+            <div className="p-3 my-5  shadow-2xl flex items-center justify-between">
+                <button className="w-[10%]">
+                    <img src={user?.photoURL} alt="" className="w-14 h-14 rounded-full object-cover"/>
+                </button>
+                <button onClick={() => setModal(true)} className="w-[80%] text-xl font-mono bg-gray-200 py-2 px-5 text-left rounded-3xl">Express your feelings!</button>
+                <button onClick={() => setModal(true)} className="w-fit">
+                    <img src={frame} alt="" />
+                </button>
+            </div>
             {/*======================== Modal ====================== */}
-            <div className="fixed w-full bg-[#000] bg-opacity-50 h-screen top-0 left-0 flex items-center justify-center">
-                <div className="bg-white w-[500px] max-h-[90vh] jm_shadow rounded-md overflow-auto p-5 ">
+            <div className={`fixed w-full bg-[#000] bg-opacity-50 h-screen top-0 left-0 items-center justify-center ${modal ? "flex" : "hidden"}`}>
+                <div className="bg-white w-[500px] max-h-[90vh] jm_shadow rounded-md overflow-auto p-5 relative">
+                    <div className="border-b-2 pb-3 mb-5">
+                        <h2 className="text-center text-3xl">Create Post</h2>
+                    </div>
+                    <button onClick={() => setModal(false)} className="absolute z-40 text-3xl top-2 right-2"><FaTimes/></button>
                     <div className="flex justify-between ">
                         <div className="flex gap-5">
                             <img src={user?.photoURL} alt="profiles image" className="w-16 h-16 rounded-full border object-cover"/>
@@ -116,11 +147,11 @@ const AddPost = () => {
                                 <p>{moment().format('MMM Do yy, dddd.')}</p>
                             </div>
                         </div>
-                        <form>
-                            <label htmlFor={`${selectedImages.length > 0 ? "" : "image"}`} className={`cursor-pointer ${selectedImages.length > 0 ? "cursor-not-allowed opacity-50" : ""}`}><img src={frame} alt="" /></label>
+                        <form >
+                            <label htmlFor={`${selectedImages.length > 0 ? "" : "image"}`} className={`cursor-pointer ${selectedImages.length > 0 ? "opacity-50 cursor-no-drop" : ""}`}><img src={frame} alt="" /></label>
                             {/* TODO: Multiple image selected */}
                             {/* multiple={selectedImages.length > 0 ? false : true} */}
-                            <input type="file" onChange={handleImageSelect} name="image" id="image" className="hidden"/>
+                            <input type="file" ref={fileInputRef} onChange={handleImageSelect} name="image" id="image" className="hidden"/>
                         </form>
                     </div>
                     <div className="rounded-md">
